@@ -1,8 +1,8 @@
 
 class SequenceTable {
-  constructor() {
+  constructor(binData) {
     this.initializeHeaderData();
-    this.setClassData();
+    this.setClassData(binData);
     this.drawTable();
     this.attachSortHandlers();
 
@@ -45,7 +45,7 @@ class SequenceTable {
     let binSeqRows = rowSelection
       .append('tr')
       .attr('id', 'binSeq');
-    let lineSeparators = rowSelection
+    let lineSeparators = rowSelection // TODO: ever used?
       .append('hr');
 
     let isFirst = true;
@@ -54,75 +54,72 @@ class SequenceTable {
 
   }
 
-  setClassData() {
-    const binNum = d3.select('#bin_num_select').property('value');
-    this.data = globalApplicationState.data
-      .filter(d => d.binNum === parseInt(binNum))
-      .groupBy(['start','end','insert']);
-    this.data
+  setClassData(binData) {
+    this.data = binData.groupBy(['start','end','insert']);
   }
 
   rowToCellDataTransformForSelection(selection, isFirst){
     let returnSelection = selection.selectAll('td')
-        .data((d) => {
+      .data((d) => {
 
-          let nucleotideIndex = {
-            type: 'text',
-            class: 'plain',
-            value: isFirst ? d.start : ''
-          }
+        let nucleotideIndex = {
+          type: 'text',
+          class: 'plain',
+          value: isFirst ? d.start : ''
+        }
 
-          let type = this.determineErrorType(d);
-          let errorType = {
-            type: 'text',
-            class: type,
-            value: isFirst ? type : ''
-          };
+        let type = this.determineErrorType(d);
+        let errorType = {
+          type: 'text',
+          class: type,
+          value: isFirst ? type : ''
+        };
 
-          let frequencyNum = {
-            type: 'text',
-            class: 'plain',
-            value: isFirst ? d.values.length : ''
-          };
+        let frequencyNum = {
+          type: 'text',
+          class: 'plain',
+          value: isFirst ? d.values.length : ''
+        };
 
-          let sequenceOrigin = {
-            type: 'text',
-            class: 'plain',
-            value: isFirst ? 'Consensus Sequence:' : 'Bin Sequence:'
-          };
+        let sequenceOrigin = {
+          type: 'text',
+          class: 'plain',
+          value: isFirst ? 'Consensus Sequence:' : 'Bin Sequence:'
+        };
 
-          let seq = this.determineAlignedSequence(d, isFirst);
+        let seq = this.determineAlignedSequence(d, isFirst);
 
-          let sequence = {
-            type: 'multicolor_text',
-            insertion_class: `alignment ${type}`,
-            value: seq
-          };
+        let sequence = {
+          type: 'multicolor_text',
+          insertion_class: `alignment ${type}`,
+          value: seq
+        };
 
-          let dataList = [nucleotideIndex, errorType, frequencyNum, sequenceOrigin, sequence];
-          return dataList;
+        let dataList = [nucleotideIndex, errorType, frequencyNum, sequenceOrigin, sequence];
+        return dataList;
 
-        })
-        .join('td')
-        .attr('class', d => d.class);
-      returnSelection.selectAll('tspan').remove();
-      let alignmentSelection = returnSelection.filter(d => d.type === 'multicolor_text');
-      alignmentSelection
-        .append('tspan')
-        .attr('class', 'alignment')
-        .text(d => d.value[0]);
-      alignmentSelection
-        .append('tspan')
-        .attr('class', d => d.insertion_class)
-        .text(d => d.value[1]);
-      alignmentSelection
-        .append('tspan')
-        .attr('class', 'alignment')
-        .text(d => d.value[2]);
+      })
+      .join('td')
+      .attr('class', d => d.class);
+
+    returnSelection.selectAll('tspan').remove();
+    let alignmentSelection = returnSelection.filter(d => d.type === 'multicolor_text');
+    alignmentSelection
+      .append('tspan')
+      .attr('class', 'alignment')
+      .text(d => d.value[0]);
+    alignmentSelection
+      .append('tspan')
+      .attr('class', d => d.insertion_class)
+      .text(d => d.value[1]);
+    alignmentSelection
+      .append('tspan')
+      .attr('class', 'alignment')
+      .text(d => d.value[2]);
 
 
-        let otherSelection = returnSelection.filter(d => d.type === 'text');
-        otherSelection.text(d => d.value);
+    let otherSelection = returnSelection.filter(d => d.type === 'text');
+    otherSelection.text(d => d.value);
 
   }
 
@@ -199,8 +196,7 @@ class SequenceTable {
          return d.sorted ? sortedClass : "fas no-display";
        });
 
-
-}
+  }
 
   sortColumn(a,b,d){
     let aVal;
@@ -224,7 +220,7 @@ class SequenceTable {
       } else {
         return aVal < bVal ? -1 : 1
      }
-    }
+  }
 
 
 }

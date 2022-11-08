@@ -3,6 +3,7 @@ setup();
 // Constants for the charts, that would be useful.
 const CHART_WIDTH = 500;
 const CHART_HEIGHT = 250;
+const BAR_CONTEXT_HEIGHT = 100;
 const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
 const ANIMATION_DURATION = 300;
 
@@ -46,24 +47,24 @@ function setup () {
     globalApplicationState.seq = seq;
     globalApplicationState.data = data;
     const binNum = d3.select('#bin_num_select').property('value');
-    let tempData = globalApplicationState.data.filter(d => d.binNum === parseInt(binNum))
-    d3.select("#num_sequences").text(`Total Number of Sequences in Bin: ${new Set(tempData.map(d => d.seqID)).size}`);
+    let binData = globalApplicationState.data.filter(d => d.binNum === parseInt(binNum))
+    d3.select("#num_sequences").text(`Total Number of Sequences in Bin: ${new Set(binData.map(d => d.seqID)).size}`);
 
 
-    let sequenceTable = new SequenceTable();
+    let sequenceTable = new SequenceTable(binData);
     globalApplicationState.sequenceTable = sequenceTable;
-    let barplot = new Barplot();
+    let barplot = new Barplot(binData);
     globalApplicationState.barplot = barplot;
   })
 }
 
 function changeData(){
   const binNum = d3.select('#bin_num_select').property('value');
-  let tempData = globalApplicationState.data.filter(d => d.binNum === parseInt(binNum))
-  d3.select("#num_sequences").text(`Total Number of Sequences in Bin: ${new Set(tempData.map(d => d.seqID)).size}`);
-  globalApplicationState.barplot.drawBarPlot();
+  let binData = globalApplicationState.data.filter(d => d.binNum === parseInt(binNum))
+  d3.select("#num_sequences").text(`Total Number of Sequences in Bin: ${new Set(binData.map(d => d.seqID)).size}`);
+  globalApplicationState.barplot.drawBarPlot(binData);
   globalApplicationState.sequenceTable.initializeHeaderData();
-  globalApplicationState.sequenceTable.setClassData();
+  globalApplicationState.sequenceTable.setClassData(binData);
   globalApplicationState.sequenceTable.drawTable();
 }
 

@@ -10,7 +10,7 @@ class Barplot {
 
   }
 
-  initializeBarPlot(){  
+  initializeBarPlot(){
 
     this.initializeFocus();
     this.initializeContext();
@@ -34,6 +34,10 @@ class Barplot {
     focus.append('g')
       .attr('id', 'BarChart')
       .attr('class', 'bar-chart');
+
+    focus.append('g')
+      .attr('id', 'text-hover-box')
+      .append('rect');
 
     this.initializeClipPath();
 
@@ -68,12 +72,12 @@ class Barplot {
       .domain([0, maxLength])
       .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
       .nice();
-      
+
     this.y2 = d3.scaleLinear()
       .domain(this.yScale.domain())
       .range([BAR_CONTEXT_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
       .nice();
-      
+
     this.xScale = d3.scaleLinear()
       .domain([0, globalApplicationState.seq.length])
       .range([MARGIN.left, CHART_WIDTH-MARGIN.right])
@@ -83,16 +87,51 @@ class Barplot {
       .domain(this.xScale.domain())
       .range([MARGIN.left, CHART_WIDTH-MARGIN.right])
       .nice();
-      
+
     this.xAxis = d3.axisBottom(this.xScale);
     this.xAxis2 = d3.axisBottom(this.x2);
-    
+
     this.addYAxis();
     this.addXAxis();
     this.drawBars();
     this.drawMiniBars();
     this.setupBrush();
     this.setupZoom();
+    this.setupHoverSequenceView();
+
+  }
+
+  setupHoverSequenceView(){
+    d3.select('#Barchart-svg')
+    .on('mousemove', (e) => {
+      let v = d3.pointer(e);
+      //console.log(v);
+      let x = v[0];
+
+      const bpHoverTarget = this.xScale.invert(x);
+      const radius = 5;
+
+      if (x > MARGIN.left && x < CHART_WIDTH - MARGIN.right) {
+        // Set the line position
+        d3.select('#text-hover-box')
+          .select('rect')
+          .attr('stroke', 'none')
+          .attr('fill', 'grey')
+          .attr('opacity', 0.5)
+          .attr('width', Math.abs(this.xScale(bpHoverTarget - radius) - this.xScale(bpHoverTarget + radius)))
+          .attr('x', this.xScale(bpHoverTarget - radius))
+          .attr('y', CHART_HEIGHT - MARGIN.bottom)
+          .attr('height', MARGIN.bottom);
+
+      }
+    })
+    .on('mouseout', (e) => {
+      d3.select('#text-hover-box')
+        .select('rect')
+        .attr('stroke', 'none')
+        .attr('fill', 'none')
+    }
+  );
 
   }
 
@@ -230,7 +269,7 @@ class Barplot {
   }
 
   drawBars() {
-    
+
     d3.select('#BarChart')
       .selectAll('rect')
       .data(this.data)

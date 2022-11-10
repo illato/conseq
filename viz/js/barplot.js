@@ -35,9 +35,22 @@ class Barplot {
       .attr('id', 'BarChart')
       .attr('class', 'bar-chart');
 
-    focus.append('g')
-      .attr('id', 'text-hover-box')
+    let text_hover = focus.append('g')
+      .attr('id', 'text-hover');
+
+    text_hover
+      .append('text');
+
+    text_hover
       .append('rect');
+
+    text_hover
+      .append('line')
+      .attr('id', 'text-line-left');
+
+    text_hover
+      .append('line')
+      .attr('id', 'text-line-right');
 
     this.initializeClipPath();
 
@@ -104,32 +117,75 @@ class Barplot {
   setupHoverSequenceView(){
     d3.select('#Barchart-svg')
     .on('mousemove', (e) => {
-      let v = d3.pointer(e);
-      //console.log(v);
-      let x = v[0];
+      let x = d3.pointer(e)[0];
 
-      const bpHoverTarget = this.xScale.invert(x);
-      const radius = 5;
+      const bpHoverTargetApprox = this.xScale.invert(x);
+      const bpHoverTarget = parseInt(Math.round(bpHoverTargetApprox));
+      const radius = 7;
+      const character_width = 11;
+      const line_buffer = 2;
 
-      if (x > MARGIN.left && x < CHART_WIDTH - MARGIN.right) {
+      if (x > MARGIN.left && x < CHART_WIDTH - MARGIN.right && this.xScale.domain()[1] - this.xScale.domain()[0] > radius * 2) {
         // Set the line position
-        d3.select('#text-hover-box')
+        d3.select('#text-hover')
           .select('rect')
           .attr('stroke', 'none')
           .attr('fill', 'grey')
           .attr('opacity', 0.5)
-          .attr('width', Math.abs(this.xScale(bpHoverTarget - radius) - this.xScale(bpHoverTarget + radius)))
-          .attr('x', this.xScale(bpHoverTarget - radius))
+          .attr('width', Math.abs(this.xScale(bpHoverTargetApprox - radius) - this.xScale(bpHoverTargetApprox + radius)))
+          .attr('x', this.xScale(bpHoverTargetApprox - radius))
           .attr('y', CHART_HEIGHT - MARGIN.bottom)
           .attr('height', MARGIN.bottom);
+
+        let text_x;
+        if (x < CHART_WIDTH - MARGIN.right - radius * character_width && x > MARGIN.left + radius * character_width){text_x = this.xScale(bpHoverTargetApprox)-radius*character_width}
+        else if (x > CHART_WIDTH - MARGIN.right - radius * character_width){text_x = CHART_WIDTH - MARGIN.right - radius * character_width * 2}
+        else {text_x = MARGIN.left}
+
+
+        d3.select('#text-hover')
+          .select('text')
+          .text(globalApplicationState.seq.substring(bpHoverTarget-radius,bpHoverTarget+radius))
+          .attr('x', text_x)
+          .attr('y', MARGIN.top);
+
+        d3.select('#text-line-left')
+          .attr('opacity',0.5)
+          .attr('stroke', 'blue')
+          .attr('x1', text_x - line_buffer)
+          .attr('x2', this.xScale(bpHoverTargetApprox - radius))
+          .attr('y1', MARGIN.top)
+          .attr('y2', CHART_HEIGHT - MARGIN.bottom);
+
+        d3.select('#text-line-right')
+          .attr('opacity',0.5)
+          .attr('stroke', 'blue')
+          .attr('x1', text_x + radius * character_width * 2 + line_buffer)
+          .attr('x2', this.xScale(bpHoverTargetApprox + radius))
+          .attr('y1', MARGIN.top)
+          .attr('y2', CHART_HEIGHT - MARGIN.bottom);
+
 
       }
     })
     .on('mouseout', (e) => {
-      d3.select('#text-hover-box')
+      d3.select('#text-hover')
+        .select('text')
+        .text('');
+
+      d3.select('#text-hover')
         .select('rect')
         .attr('stroke', 'none')
-        .attr('fill', 'none')
+        .attr('fill', 'none');
+
+      d3.select('#text-line-left')
+        .attr('stroke', 'none')
+        .attr('fill', 'none');
+
+      d3.select('#text-line-right')
+        .attr('stroke', 'none')
+        .attr('fill', 'none');
+
     }
   );
 

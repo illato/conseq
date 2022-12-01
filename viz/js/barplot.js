@@ -14,7 +14,7 @@ class Barplot {
 
     this.initializeFocus();
     this.initializeContext();
-
+    this.initializeErrorTypeCharts();
   }
 
   initializeFocus() {
@@ -60,6 +60,7 @@ class Barplot {
 
     let context = d3.select('#Barchart-div')
       .append('svg')
+      .style('height', BAR_CONTEXT_HEIGHT)
       .attr('id', 'Barchart-svg-context')
       .append('g')
         .attr('id', 'BarChartContext');
@@ -75,8 +76,40 @@ class Barplot {
 
   }
 
-  drawBarPlot(binData){
+  initializeErrorTypeCharts() {
+    globalApplicationState.types.forEach( el => {
 
+        d3.select(`#Barchart-div`)
+          .append('g')
+          .attr('id', `barchart-${el}-title`);
+
+
+        let barchart = d3.select('#Barchart-div')
+          .append('svg')
+          .style('height', BAR_CONTEXT_HEIGHT)
+          .attr('id', `barchart-svg-${el}`)
+          .append('g')
+          .attr('id',`barchart-${el}`);
+
+        barchart.append('g')
+          .attr('id', `barchart-${el}-x-axis`);
+
+        barchart.append('g')
+          .attr('id', `barchart-${el}-bars`)
+          .attr('class', 'bar-chart');
+
+
+        console.log(el);
+    })
+  }
+
+  reduceSvgSize(size){return size / 2;}
+
+  createErrorTypeChart(){
+
+  }
+
+  drawBarPlot(binData){
     this.data = d3.group(binData, d => d.start);
 
     const maxLength = d3.max([...this.data.values()], n => n.length);
@@ -108,6 +141,7 @@ class Barplot {
     this.addXAxis();
     this.drawBars();
     this.drawMiniBars();
+    this.setupTitles();
     this.setupBrush();
     this.setupZoom();
     this.setupHoverSequenceView();
@@ -268,6 +302,12 @@ class Barplot {
       .attr('transform', `translate(0,${BAR_CONTEXT_HEIGHT - MARGIN.bottom})`)
       .call(this.xAxis2);
 
+    globalApplicationState.types.forEach(el =>{
+      d3.select(`#barchart-${el}-x-axis`)
+        .attr('transform', globalApplicationState.isMultiView ? `translate(0,${BAR_CONTEXT_HEIGHT - MARGIN.bottom})` : 'translate(-100,-100)')
+        .call(globalApplicationState.isMultiView ? this.xAxis2 : d3.axisBottom(d3.scaleLinear().domain([0,0]).range([0,0])));
+    })
+
   }
 
   addYAxis() {
@@ -293,7 +333,68 @@ class Barplot {
       .attr('opacity', 1)
       .classed('bar-chart-bar', true);
 
+    globalApplicationState.types.forEach(el =>{
+
+      let tempData = new Map()
+      this.data.forEach((v,k) => {
+        tempData.set(k, v.filter(s => globalApplicationState.sequenceTable.determineErrorType(s) === el))
+      })
+
+      d3.select(`#barchart-${el}-bars`)
+        .selectAll('rect')
+        .data(tempData)
+        .join(
+          enter => enter
+            .append('rect')
+            .attr('width', 2)
+            .attr('x', d => MARGIN.left)
+            .attr('y', d => this.y2(d[1].length) + MARGIN.top)
+            .attr('height', d => 0)
+            .attr('id', d => d.start)
+            .attr('opacity', 1)
+            .classed(el, true),
+          update => update
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .attr('y', d => this.y2(d[1].length) + MARGIN.top)
+            .attr('x', d => globalApplicationState.isMultiView ? this.x2(d[0]) : MARGIN.left)
+            .attr('height', d => globalApplicationState.isMultiView ? this.y2(0) - this.y2(d[1].length) : 0),
+
+          exit => exit
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .attr('width', 0)
+            .attr('height', 0)
+            .remove()
+        )
+
+
+    })
   }
+  setupTitles() {
+    globalApplicationState.types.forEach(el =>{
+      d3.select(`#barchart-${el}-title`)
+        .selectAll('h3')
+        .data([globalApplicationState.isMultiView])
+        .join(
+          enter => enter
+            .append('h3')
+            .text('')
+            .attr('class',el)
+            .attr('font-weight',100),
+          update => update
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .text(d =>  d ? el : ''),
+          exit => exit
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .remove()
+        )
+      })
+  }
+
+
 
   initializeBarZoom() {
 
@@ -374,11 +475,9 @@ class Barplot {
   }
 
   updateSelectedRects(){
-
     d3.select('#BarChart')
       .selectAll('rect')
       .classed('selected', (d) => globalApplicationState.selectedStartPeak.has(d[0]) ? true : false);
-
   }
 
 }

@@ -518,23 +518,7 @@ class Barplot {
       });
 
     this.updateSelectedRects();
-
-
-
-
-    const bins = d3.group(globalApplicationState.data, d => d.binNum)
-    d3.select('#BarChart').selectAll('.line')
-      .data(bins)
-      .join('path')
-      .attr('stroke', 'black')//todo
-      .attr('stroke-width', 1.5)
-      .attr('d', function(d) {
-        console.log(d)
-        return d3.line()
-          .x(function(d) { return this.xScale(d[0]); })
-          .y(d => this.yScale(d[1]))
-      })
-
+    
   }
 
   updateSelectedRects(){

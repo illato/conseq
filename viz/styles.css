@@ -182,3 +182,7 @@ header {
 .bar-chart-bar {
   fill: 'black';
 }
+
+#Barchart-svg {
+  display: block;
+}

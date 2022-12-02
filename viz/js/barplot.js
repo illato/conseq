@@ -1,24 +1,29 @@
 /** Class implementing the table. */
 class Barplot {
-    /**
-     * Creates a Table Object
-     */
+  /**
+   * Creates a Barplot Object
+   */
   constructor(binData) {
-
+    /**
+     * Initialize Barplot object and draw corresponding elements
+     */
     this.initializeBarPlot();
     this.drawBarPlot(binData);
-
   }
 
   initializeBarPlot(){
-
+    /**
+     * Initialize Error Histogram Charts
+     */
     this.initializeFocus();
     this.initializeContext();
-
+    this.initializeErrorTypeCharts();
   }
 
   initializeFocus() {
-
+    /**
+     * Initialize Error Histogram Focus
+     */
     let focus = d3.select('#Barchart-div')
       .append('svg')
       .attr('id', 'Barchart-svg');
@@ -53,13 +58,15 @@ class Barplot {
       .attr('id', 'text-line-right');
 
     this.initializeClipPath();
-
   }
 
   initializeContext() {
-
+    /**
+     * Initialize Error Histogram Context
+     */
     let context = d3.select('#Barchart-div')
       .append('svg')
+      .style('height', BAR_CONTEXT_HEIGHT)
       .attr('id', 'Barchart-svg-context')
       .append('g')
         .attr('id', 'BarChartContext');
@@ -72,11 +79,39 @@ class Barplot {
 
     context.append('g')
       .attr('id', 'Barchart-context');
+  }
 
+  initializeErrorTypeCharts() {
+    /** 
+     * Initialize Error-Type Specific Charts 
+     */
+    globalApplicationState.types.forEach( el => {
+
+        d3.select(`#Barchart-div`)
+          .append('g')
+          .attr('id', `barchart-${el}-title`);
+
+
+        let barchart = d3.select('#Barchart-div')
+          .append('svg')
+          .style('height', BAR_CONTEXT_HEIGHT)
+          .attr('id', `barchart-svg-${el}`)
+          .append('g')
+          .attr('id',`barchart-${el}`);
+
+        barchart.append('g')
+          .attr('id', `barchart-${el}-x-axis`);
+
+        barchart.append('g')
+          .attr('id', `barchart-${el}-bars`)
+          .attr('class', 'bar-chart');
+    });
   }
 
   drawBarPlot(binData){
-
+    /**
+     * Draw/Re-Draw Error Histogram plots
+     */
     this.data = d3.group(binData, d => d.start);
 
     const maxLength = d3.max([...this.data.values()], n => n.length);
@@ -108,6 +143,7 @@ class Barplot {
     this.addXAxis();
     this.drawBars();
     this.drawMiniBars();
+    this.setupTitles();
     this.setupBrush();
     this.setupZoom();
     this.setupHoverSequenceView();
@@ -115,6 +151,9 @@ class Barplot {
   }
 
   setupHoverSequenceView(){
+    /**
+     * Setup listener for sequence peek on hover
+     */
     d3.select('#Barchart-svg')
     .on('mousemove', (e) => {
       let x = d3.pointer(e)[0];
@@ -164,8 +203,6 @@ class Barplot {
           .attr('x2', this.xScale(bpHoverTargetApprox + radius))
           .attr('y1', MARGIN.top)
           .attr('y2', CHART_HEIGHT - MARGIN.bottom);
-
-
       }
     })
     .on('mouseout', (e) => {
@@ -185,14 +222,15 @@ class Barplot {
       d3.select('#text-line-right')
         .attr('stroke', 'none')
         .attr('fill', 'none');
-
     }
   );
 
   }
 
   setupZoom() {
-
+    /**
+     *  Setup listen for zoom on scroll in Error Histogram Focus
+     */
     this.zoom = d3.zoom()
       .scaleExtent([1, Infinity])
       .translateExtent([[0, 0], [CHART_WIDTH, CHART_HEIGHT]])
@@ -226,7 +264,9 @@ class Barplot {
   }
 
   setupBrush() {
-
+    /**
+     * Setup brushing in Error Histogram Context
+     */
     this.brush = d3.brushX()
       .extent([[MARGIN.left, 0], [CHART_WIDTH - MARGIN.right, BAR_CONTEXT_HEIGHT - MARGIN.bottom]])
       .on('brush end', (e) => {
@@ -254,7 +294,9 @@ class Barplot {
   }
 
   addXAxis() {
-
+    /**
+     * Add (zoom-variable) x-axis to Error Histogram Focus
+     */
     d3.select('#Barchart-x-axis')
       .classed('barchart-x-axis', true)
       .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
@@ -263,15 +305,25 @@ class Barplot {
   }
 
   addContextXAxis() {
-
+    /**
+     * Add (zoom-invariant) x-axis to Error Histogram Context(s)
+     */
     d3.select('#Barchart-context-x-axis')
       .attr('transform', `translate(0,${BAR_CONTEXT_HEIGHT - MARGIN.bottom})`)
       .call(this.xAxis2);
 
+    globalApplicationState.types.forEach(el =>{
+      d3.select(`#barchart-${el}-x-axis`)
+        .attr('transform', globalApplicationState.isMultiView ? `translate(0,${BAR_CONTEXT_HEIGHT - MARGIN.bottom})` : 'translate(-100,-100)')
+        .call(globalApplicationState.isMultiView ? this.xAxis2 : d3.axisBottom(d3.scaleLinear().domain([0,0]).range([0,0])));
+    })
+
   }
 
   addYAxis() {
-
+    /**
+     * Add y-axis to Error Histogram Focus
+     */
     d3.select('#Barchart-y-axis')
       .call(d3.axisLeft(this.yScale))
       .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
@@ -279,6 +331,9 @@ class Barplot {
   }
 
   drawMiniBars() {
+    /**
+     * Draw/Re-Draw mini-bars in Error Histogram Context(s)
+     */
     this.addContextXAxis()
 
     d3.select('#Barchart-context-bars')
@@ -293,10 +348,74 @@ class Barplot {
       .attr('opacity', 1)
       .classed('bar-chart-bar', true);
 
+    globalApplicationState.types.forEach(el =>{
+
+      let tempData = new Map()
+      this.data.forEach((v,k) => {
+        tempData.set(k, v.filter(s => globalApplicationState.sequenceTable.determineErrorType(s) === el))
+      })
+
+      d3.select(`#barchart-${el}-bars`)
+        .selectAll('rect')
+        .data(tempData)
+        .join(
+          enter => enter
+            .append('rect')
+            .attr('width', 2)
+            .attr('x', d => MARGIN.left)
+            .attr('y', d => this.y2(d[1].length) + MARGIN.top)
+            .attr('height', d => 0)
+            .attr('id', d => d.start)
+            .attr('opacity', 1)
+            .classed(el, true),
+          update => update
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .attr('y', d => this.y2(d[1].length) + MARGIN.top)
+            .attr('x', d => globalApplicationState.isMultiView ? this.x2(d[0]) : MARGIN.left)
+            .attr('height', d => globalApplicationState.isMultiView ? this.y2(0) - this.y2(d[1].length) : 0),
+
+          exit => exit
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .attr('width', 0)
+            .attr('height', 0)
+            .remove()
+        )
+
+    });
+  }
+
+  setupTitles() {
+    /**
+     * Setup and add/remove text in titles on Error-Type Specific Histograms
+     */
+    globalApplicationState.types.forEach(el =>{
+      d3.select(`#barchart-${el}-title`)
+        .selectAll('h3')
+        .data([globalApplicationState.isMultiView])
+        .join(
+          enter => enter
+            .append('h3')
+            .text('')
+            .attr('class',el)
+            .attr('font-weight',100),
+          update => update
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .text(d =>  d ? el : ''),
+          exit => exit
+            .transition()
+            .duration(ANIMATION_DURATION)
+            .remove()
+        )
+      })
   }
 
   initializeBarZoom() {
-
+    /**
+     * Initialize zoom-context shading on Error Histogram Context
+     */
     d3.select('#Barchart-svg')
       .append('rect')
         .classed('zoom', true)
@@ -308,7 +427,9 @@ class Barplot {
   }
 
   initializeClipPath() {
-
+    /**
+     * Initialize clip path around Error Histogram Focus to prevent overflow on zoom
+     */
     d3.select('#Barchart-svg').append('defs')
       .append('svg:clipPath')
         .attr('id', 'clip')
@@ -325,7 +446,9 @@ class Barplot {
   }
 
   drawBars() {
-
+    /**
+     * Draw/Re-Draw Bars for Error Histogram Focus
+     */
     d3.select('#BarChart')
       .selectAll('rect')
       .data(this.data)
@@ -374,11 +497,12 @@ class Barplot {
   }
 
   updateSelectedRects(){
-
+    /**
+     * Update selected attribute of any selected/deselected Error Histogram Focus bars
+     */
     d3.select('#BarChart')
       .selectAll('rect')
       .classed('selected', (d) => globalApplicationState.selectedStartPeak.has(d[0]) ? true : false);
-
   }
 
 }

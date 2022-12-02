@@ -16,7 +16,9 @@ const ANIMATION_DURATION = 300;
    data:null,
    filteredData:null,
    barplot: null,
-   table:null
+   table:null,
+   types:['deletion', 'insertion', 'mutation'],
+   isMultiView:false,
  };
 
 function setup () {
@@ -49,6 +51,7 @@ function setup () {
     const binNum = d3.select('#bin_num_select').property('value');
     let binData = globalApplicationState.data.filter(d => d.binNum === parseInt(binNum))
     d3.select("#num_sequences").text(`Total Number of Sequences in Bin: ${new Set(binData.map(d => d.seqID)).size}`);
+    document.querySelector('#multicolor').addEventListener('change', changeData);
 
 
     let sequenceTable = new SequenceTable(binData);
@@ -59,6 +62,7 @@ function setup () {
 }
 
 function changeData(){
+  globalApplicationState.isMultiView = document.getElementById('multicolor').checked ? true : false
   const binNum = d3.select('#bin_num_select').property('value');
   let binData = globalApplicationState.data.filter(d => d.binNum === parseInt(binNum))
   d3.select("#num_sequences").text(`Total Number of Sequences in Bin: ${new Set(binData.map(d => d.seqID)).size}`);

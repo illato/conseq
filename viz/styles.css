@@ -36,6 +36,18 @@ svg {
   fill: #eb4034;
 }
 
+.bar-chart .deletion {
+  fill: #eb4034;
+}
+.bar-chart .insertion {
+  fill: #007d08;
+}
+.bar-chart .mutation {
+  fill: #7700e6;
+}
+
+
+
 text {
   fill: black;
 }
@@ -169,4 +181,8 @@ header {
 
 .bar-chart-bar {
   fill: 'black';
+}
+
+#Barchart-svg {
+  display: block;
 }

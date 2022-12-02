@@ -26,7 +26,9 @@ class Barplot {
      */
     let focus = d3.select('#Barchart-div')
       .append('svg')
-      .attr('id', 'Barchart-svg');
+      .attr('id', 'Barchart-svg')
+      .attr('height', CHART_HEIGHT + MARGIN.top + MARGIN.main_bottom)
+      .attr('width', CHART_WIDTH + MARGIN.left + MARGIN.right);
 
     this.initializeBarZoom(); // behind bars => bar:hover & zoom both work
 
@@ -58,6 +60,31 @@ class Barplot {
       .attr('id', 'text-line-right');
 
     this.initializeClipPath();
+    this.addFocusYAxisLabel(focus);
+    this.addFocusXAxisLabel(focus);
+  }
+
+  addFocusYAxisLabel(focus) {
+    /**
+     * Add y-axis label to Error Histogram Focus
+    */
+    focus.append('text')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', MARGIN.left / 2)
+      .attr('x', -BAR_CONTEXT_HEIGHT / 1.5)
+      .text('Error Frequency')
+  }
+
+  addFocusXAxisLabel(focus) {
+    /**
+     * Add x-axis label to Error Histogram Focus
+    */
+     focus.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('y', CHART_HEIGHT - MARGIN.bottom / 2) // TODO
+      .attr('x', CHART_WIDTH / 2)
+      .text('Nucleotide Index')
   }
 
   initializeContext() {
@@ -82,8 +109,8 @@ class Barplot {
   }
 
   initializeErrorTypeCharts() {
-    /** 
-     * Initialize Error-Type Specific Charts 
+    /**
+     * Initialize Error-Type Specific Charts
      */
     globalApplicationState.types.forEach( el => {
 
@@ -118,7 +145,7 @@ class Barplot {
 
     this.yScale = d3.scaleLinear()
       .domain([0, maxLength])
-      .range([CHART_HEIGHT - MARGIN.bottom - MARGIN.top, 0])
+      .range([CHART_HEIGHT - MARGIN.main_bottom - MARGIN.top, 0])
       .nice();
 
     this.y2 = d3.scaleLinear()
@@ -173,7 +200,7 @@ class Barplot {
           .attr('opacity', 0.5)
           .attr('width', Math.abs(this.xScale(bpHoverTargetApprox - radius) - this.xScale(bpHoverTargetApprox + radius)))
           .attr('x', this.xScale(bpHoverTargetApprox - radius))
-          .attr('y', CHART_HEIGHT - MARGIN.bottom)
+          .attr('y', CHART_HEIGHT - MARGIN.main_bottom)
           .attr('height', MARGIN.bottom);
 
         let text_x;
@@ -194,7 +221,7 @@ class Barplot {
           .attr('x1', text_x - line_buffer)
           .attr('x2', this.xScale(bpHoverTargetApprox - radius))
           .attr('y1', MARGIN.top)
-          .attr('y2', CHART_HEIGHT - MARGIN.bottom);
+          .attr('y2', CHART_HEIGHT - MARGIN.main_bottom);
 
         d3.select('#text-line-right')
           .attr('opacity',0.5)
@@ -202,7 +229,7 @@ class Barplot {
           .attr('x1', text_x + radius * character_width * 2 + line_buffer)
           .attr('x2', this.xScale(bpHoverTargetApprox + radius))
           .attr('y1', MARGIN.top)
-          .attr('y2', CHART_HEIGHT - MARGIN.bottom);
+          .attr('y2', CHART_HEIGHT - MARGIN.main_bottom);
       }
     })
     .on('mouseout', (e) => {
@@ -299,7 +326,7 @@ class Barplot {
      */
     d3.select('#Barchart-x-axis')
       .classed('barchart-x-axis', true)
-      .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.bottom})`)
+      .attr('transform', `translate(0,${CHART_HEIGHT - MARGIN.main_bottom})`)
       .call(this.xAxis);
 
   }
@@ -403,7 +430,7 @@ class Barplot {
           update => update
             .transition()
             .duration(ANIMATION_DURATION)
-            .text(d =>  d ? el : ''),
+            .text(d =>  d ? el + 's' : ''),
           exit => exit
             .transition()
             .duration(ANIMATION_DURATION)
@@ -421,7 +448,7 @@ class Barplot {
         .classed('zoom', true)
         .attr('id', 'bar-zoom')
         .attr('width', CHART_WIDTH - MARGIN.left - MARGIN.right)
-        .attr('height', CHART_HEIGHT - MARGIN.bottom - MARGIN.top)
+        .attr('height', CHART_HEIGHT - MARGIN.main_bottom - MARGIN.top)
         .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`);
 
   }
@@ -436,7 +463,7 @@ class Barplot {
         .append('svg:rect')
           .attr('transform', `translate(${MARGIN.left}, ${MARGIN.top})`)
           .attr('width', CHART_WIDTH - MARGIN.left - MARGIN.right)
-          .attr('height', CHART_HEIGHT - MARGIN.bottom - MARGIN.top)
+          .attr('height', CHART_HEIGHT - MARGIN.main_bottom - MARGIN.top)
           .attr('x', 0)
           .attr('y', 0);
 

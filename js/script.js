@@ -4,7 +4,7 @@ setup();
 const CHART_WIDTH = 500;
 const CHART_HEIGHT = 250;
 const BAR_CONTEXT_HEIGHT = 100;
-const MARGIN = { left: 50, bottom: 20, top: 20, right: 20 };
+const MARGIN = { left: 60, bottom: 20, top: 20, right: 20, main_bottom:50 };
 const ANIMATION_DURATION = 300;
 
 /**

@@ -2,7 +2,7 @@ Long-Read Sequencing - Evaluating Integrity of Consensus Sequence Generation fro
 
 ----
 
-*Project landing page is `index.html` within `viz`.*
+*Project landing page is `index.html`.*
 
 ----
 

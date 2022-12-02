@@ -58,6 +58,31 @@ class Barplot {
       .attr('id', 'text-line-right');
 
     this.initializeClipPath();
+    this.addFocusYAxisLabel(focus);
+    this.addFocusXAxisLabel(focus);
+  }
+
+  addFocusYAxisLabel(focus) {
+    /** 
+     * Add y-axis label to Error Histogram Focus
+    */
+    focus.append('text')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', MARGIN.left / 2)
+      .attr('x', -BAR_CONTEXT_HEIGHT / 1.5)
+      .text('Error Frequency')
+  }
+
+  addFocusXAxisLabel(focus) {
+    /** 
+     * Add x-axis label to Error Histogram Focus
+    */
+     focus.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('y', BAR_CONTEXT_HEIGHT * 2.5 + MARGIN.bottom / 2) // TODO
+      .attr('x', CHART_WIDTH / 2)
+      .text('Nucleotide Index')
   }
 
   initializeContext() {
@@ -493,6 +518,22 @@ class Barplot {
       });
 
     this.updateSelectedRects();
+
+
+
+
+    const bins = d3.group(globalApplicationState.data, d => d.binNum)
+    d3.select('#BarChart').selectAll('.line')
+      .data(bins)
+      .join('path')
+      .attr('stroke', 'black')//todo
+      .attr('stroke-width', 1.5)
+      .attr('d', function(d) {
+        console.log(d)
+        return d3.line()
+          .x(function(d) { return this.xScale(d[0]); })
+          .y(d => this.yScale(d[1]))
+      })
 
   }
 

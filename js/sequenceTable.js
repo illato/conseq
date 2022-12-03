@@ -84,7 +84,7 @@ class SequenceTable {
         let sequenceOrigin = {
           type: 'text',
           class: 'plain',
-          value: isFirst ? 'Consensus_Sequence:' : 'Bin_Sequence:'
+          value: isFirst ? 'Consensus Sequence:' : 'Bin Sequence:'
         };
 
         let seq = this.determineAlignedSequence(d, isFirst);

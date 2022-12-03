@@ -84,6 +84,7 @@ td:first-of-type {
 
 td {
     text-align: left;
+    white-space: nowrap;
 }
 
 td:last-of-type

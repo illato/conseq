@@ -33,7 +33,6 @@ class SequenceTable {
 
     this.updateHeaders();
     let tempData = globalApplicationState.selectedStartPeak.size === 0 ? this.data : this.data.filter((d) => globalApplicationState.selectedStartPeak.has(d.start));
-    tempData = tempData.slice(0,1000);
     d3.select('#sequenceTable').selectAll('tbody').remove();
     let rowSelection = d3.select('#sequenceTable')
       .selectAll('tbody')

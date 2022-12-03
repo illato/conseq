@@ -55,6 +55,11 @@ text {
 table {
     border-collapse: collapse;
     font: 14px sans-serif;
+    height: 1000px;
+    overflow-y: scroll;
+    width: 800px;
+    overflow-x: hidden;
+    display: block;
 }
 
 th:first-of-type {

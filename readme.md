@@ -6,4 +6,4 @@ Long-Read Sequencing - Evaluating Integrity of Consensus Sequence Generation fro
 
 ----
 
-*Proposal and Process Book can be found in `docs`.*
+*Proposal and Process Book can be found in repository wiki. Originally submitted versions of teh Proposal and Process book are in the `docs` folder of the repository.*

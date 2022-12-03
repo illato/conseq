@@ -33,7 +33,7 @@ class SequenceTable {
 
     this.updateHeaders();
     let tempData = globalApplicationState.selectedStartPeak.size === 0 ? this.data : this.data.filter((d) => globalApplicationState.selectedStartPeak.has(d.start));
-    tempData = tempData.slice(0,20);
+    tempData = tempData.slice(0,1000);
     d3.select('#sequenceTable').selectAll('tbody').remove();
     let rowSelection = d3.select('#sequenceTable')
       .selectAll('tbody')
@@ -99,8 +99,8 @@ class SequenceTable {
         return dataList;
 
       })
-      .join('td')
-      .attr('class', d => d.class);
+    .join('td')
+    .attr('class', d => d.class);
 
     returnSelection.selectAll('tspan').remove();
     let alignmentSelection = returnSelection.filter(d => d.type === 'multicolor_text');

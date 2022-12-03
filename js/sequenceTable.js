@@ -33,6 +33,7 @@ class SequenceTable {
 
     this.updateHeaders();
     let tempData = globalApplicationState.selectedStartPeak.size === 0 ? this.data : this.data.filter((d) => globalApplicationState.selectedStartPeak.has(d.start));
+
     d3.select('#sequenceTable').selectAll('tbody').remove();
     let rowSelection = d3.select('#sequenceTable')
       .selectAll('tbody')
@@ -83,7 +84,7 @@ class SequenceTable {
         let sequenceOrigin = {
           type: 'text',
           class: 'plain',
-          value: isFirst ? 'Consensus Sequence:' : 'Bin Sequence:'
+          value: isFirst ? 'Consensus_Sequence:' : 'Bin_Sequence:'
         };
 
         let seq = this.determineAlignedSequence(d, isFirst);

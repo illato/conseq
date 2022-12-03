@@ -1,14 +1,20 @@
 
+/** Class implementing the Sequence Table */
 class SequenceTable {
+  /**
+  * Initlaize a SequenceTable object and draw corresponding elements
+  */
   constructor(binData) {
     this.initializeHeaderData();
     this.setClassData(binData);
     this.drawTable();
     this.attachSortHandlers();
-
   }
 
   initializeHeaderData(){
+    /**
+     * Initialize Table Column Header data
+     */
     this.headerData = [
         {
             sorted: false,
@@ -26,14 +32,18 @@ class SequenceTable {
             key: 'frequency',
         },
     ]
-
   }
 
   drawTable(){
-
+    /**
+     * Draw/Re-Draw the Sequence Table
+     */
     this.updateHeaders();
     let tempData = globalApplicationState.selectedStartPeak.size === 0 ? this.data : this.data.filter((d) => globalApplicationState.selectedStartPeak.has(d.start));
-    tempData = tempData.slice(0,20);
+    
+    // for demonstration purposes on GitHub Pages, use subset
+    tempData = tempData.slice(0,1000);
+    
     d3.select('#sequenceTable').selectAll('tbody').remove();
     let rowSelection = d3.select('#sequenceTable')
       .selectAll('tbody')
@@ -45,20 +55,25 @@ class SequenceTable {
     let binSeqRows = rowSelection
       .append('tr')
       .attr('id', 'binSeq');
-    let lineSeparators = rowSelection // TODO: ever used?
-      .append('hr');
+    // lineSeparators
+    rowSelection.append('hr');
 
     let isFirst = true;
     this.rowToCellDataTransformForSelection(consSeqRows, isFirst);
     this.rowToCellDataTransformForSelection(binSeqRows, !isFirst);
-
   }
 
   setClassData(binData) {
+    /**
+     * Group Data by Error Type to support logic and CSS
+     */
     this.data = binData.groupBy(['start','end','insert']);
   }
 
   rowToCellDataTransformForSelection(selection, isFirst){
+    /**
+     * Transform Table Row Data to Table Cells
+     */
     let returnSelection = selection.selectAll('td')
       .data((d) => {
 
@@ -99,8 +114,8 @@ class SequenceTable {
         return dataList;
 
       })
-      .join('td')
-      .attr('class', d => d.class);
+    .join('td')
+    .attr('class', d => d.class);
 
     returnSelection.selectAll('tspan').remove();
     let alignmentSelection = returnSelection.filter(d => d.type === 'multicolor_text');
@@ -120,16 +135,21 @@ class SequenceTable {
 
     let otherSelection = returnSelection.filter(d => d.type === 'text');
     otherSelection.text(d => d.value);
-
   }
 
   determineErrorType(d){
+    /**
+     * Determine the Type (insertion, mutation, deletion) of an Error
+     */
     if (d.start === d.end) {return 'insertion';}
     else if (d.insert.length !== 0) { return 'mutation';}
     else {return 'deletion'};
   }
 
   determineAlignedSequence(d, isFirst){
+    /**
+     * Evaluate Sequence Comparison Content
+     */
     let type = this.determineErrorType(d);
     let seq = globalApplicationState.seq;
     let insertLength = type === 'insertion' ? d.insert.length : d.end-d.start
@@ -159,11 +179,12 @@ class SequenceTable {
         break;
     }
     return [first_sub, insert, second_sub];
-
   }
 
   attachSortHandlers() {
-
+    /**
+     * Add Handlers for Table Column Sorting
+     */
        const headerRow = d3.select('#columnHeaders')
           .selectAll('.s')
           .data(this.headerData)
@@ -177,11 +198,13 @@ class SequenceTable {
              this.data = newData;
              this.drawTable();
           });
-
   }
 
   updateHeaders() {
-   d3.select('#columnHeaders')
+    /**
+     * Update Table Column Headers to Reflect Sort State
+     */
+    d3.select('#columnHeaders')
       .selectAll('.s')
       .data(this.headerData)
       .join('th')
@@ -195,10 +218,12 @@ class SequenceTable {
          let sortedClass = d.ascending ? 'fas fa-sort-up' : 'fas fa-sort-down';
          return d.sorted ? sortedClass : "fas no-display";
        });
-
   }
 
   sortColumn(a,b,d){
+    /**
+     * Sort Table Column
+     */
     let aVal;
     let bVal;
     switch(d.key){
@@ -221,6 +246,4 @@ class SequenceTable {
         return aVal < bVal ? -1 : 1
      }
   }
-
-
 }

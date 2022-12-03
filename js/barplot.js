@@ -1,12 +1,10 @@
-/** Class implementing the table. */
+
+/** Class implementing the Bar plot. */
 class Barplot {
   /**
-   * Creates a Barplot Object
-   */
+  * Initialize Barplot object and draw corresponding elements
+  */
   constructor(binData) {
-    /**
-     * Initialize Barplot object and draw corresponding elements
-     */
     this.initializeBarPlot();
     this.drawBarPlot(binData);
   }
@@ -513,7 +511,6 @@ class Barplot {
       .on('mouseout', (e) => d3.select(e.target).classed('hovered', false))
       .on('click', (e, d) => {
         globalApplicationState.selectedStartPeak.has(d[0]) ? globalApplicationState.selectedStartPeak.delete(d[0]) : globalApplicationState.selectedStartPeak.add(d[0]);
-        let isSelected = globalApplicationState.selectedStartPeak.has(d[0]) ? true : false; // TODO: used?
         d3.select(e.target).classed('hovered', false);
         this.updateSelectedRects();
         globalApplicationState.sequenceTable.drawTable();

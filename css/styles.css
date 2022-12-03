@@ -47,7 +47,6 @@ svg {
 }
 
 
-
 text {
   fill: black;
 }
@@ -147,10 +146,24 @@ h2 {
 }
 
 
+header, footer, nav {
+  text-align: center;
+}
+
 header {
     padding: 0.5em;
-    text-align: center;
     height: 100px;
+}
+
+footer {
+  padding-top: 2em;
+}
+
+.proj-link {
+  display: inline-block;
+  font-size: large;
+  font-weight: bold;
+  margin-right: 30px;
 }
 
 .view {
@@ -175,8 +188,6 @@ header {
 .insertion {
   color: #007d08;
 }
-
-
 
 
 .zoom {

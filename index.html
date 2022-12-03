@@ -3,22 +3,30 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Visualization Test</title>
+  <title>ConSeq</title>
   <link rel="stylesheet" href="css/styles.css"/>
   <!-- d3 script -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 
 <body>
-  <h3>Consensus Sequence Visualization Project</h3>
-  <address>
-    <span>Caleb and Alex</span>
-    <span>caleb.cranney@utah.edu and u0740821@umail.utah.edu</span>
-    <span>u0704188 and u0740821</span>
-  </address>
-  <br />
+  <header>
+    <h1>ConSeq</h1>
+    <h3>Consensus Sequence Visualization Project</h3>
+  </header>
+  
   <hr />
-  <br />
+  <nav>
+    <div>
+      <div class="proj-link">
+        <a href="https://github.com/illato/conseq/wiki/Process-Book" target="_blank">Process Book</a>
+      </div>
+      <div class="proj-link">
+        <a href="https://www.youtube.com" target="_blank">Demo Video</a>
+      </div>
+    </div>
+  </nav>
+  <hr />
 
   <div >
     <select id="bin_num_select"></select>
@@ -47,6 +55,13 @@
   </div>
 
 </body>
+<footer>
+  <address>
+    <span>Caleb and Alex</span>
+    <span>caleb.cranney@utah.edu and u0740821@umail.utah.edu</span>
+    <span>u0704188 and u0740821</span>
+  </address>
+</footer>
 <script src="js/barplot.js"></script>
 <script src="js/script.js"></script>
 <script src="js/sequenceTable.js"></script>

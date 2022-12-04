@@ -22,7 +22,7 @@ Long-Read Sequencing - Evaluating Integrity of Consensus Sequence Generation fro
 
 ----
 
-*Our Screencast Presentation Video can be found [here]().*
+*Our Screencast Presentation Video can be found [here](https://youtu.be/Fq2xSx5wQKo).*
 
 ----
 
